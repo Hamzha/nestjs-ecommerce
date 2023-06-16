@@ -17,6 +17,7 @@ export class StoreService {
     const stores = await this.storeModel.find({ name: search });
     return stores;
   }
+
   async getAllStores(): Promise<Store[]> {
     return await this.storeModel.find();
   }

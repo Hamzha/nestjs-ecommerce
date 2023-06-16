@@ -8,15 +8,20 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { FilterProductDTO } from './dtos/filter-product.dto';
 import { CreateProductDTO } from './dtos/product.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('product')
 export class ProductController {
   constructor(private productService: ProductService) {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Get('/')
   async getProducts(@Query() filterProductDTO: FilterProductDTO) {
     if (Object.keys(filterProductDTO).length) {
@@ -30,12 +35,14 @@ export class ProductController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('/')
   async addProduct(@Body() createProductDTO: CreateProductDTO) {
     const product = await this.productService.addProduct(createProductDTO);
     return product;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('/:id')
   async getProduct(@Param('id') id: string) {
     const product = await this.productService.getProduct(id);
@@ -43,6 +50,7 @@ export class ProductController {
     return product;
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Put('/:id')
   async updateProduct(
     @Param('id') id: string,
@@ -56,6 +64,7 @@ export class ProductController {
     return product;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete('/:id')
   async deleteProduct(@Param('id') id: string) {
     const product = await this.productService.deleteProduct(id);
